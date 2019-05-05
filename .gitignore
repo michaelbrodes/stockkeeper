@@ -29,6 +29,8 @@ HELP.md
 ### VS Code ###
 .vscode/
 
-# stockkeeper specific
+### stockkeeper specific ###
+# don't want to share postgres data.
 /src/docker/stockkeeper/postgres/data/
-
+# env file might contain secrets.
+/src/docker/stockkeeper/.env.sh
