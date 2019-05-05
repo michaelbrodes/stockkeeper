@@ -1,0 +1,22 @@
+version: '3.0'
+services:
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: change-me
+    ports:
+      - 5432:5432
+    volumes:
+      - ./postgres/initdb:/docker-entrypoint-initdb.d
+      - ./postgres/data:/var/lib/postgresql/data
+  app:
+    image: us.michaelrhodes/stockkeeper
+    environment: 
+      STOCKKEEPER_DB: db
+    ports:
+      - 8200:8200
+    depends_on:
+      - db
+    links:
+      - db
