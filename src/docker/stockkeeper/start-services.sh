@@ -33,3 +33,4 @@ echo "Database is up!"
 echo "Starting app!"
 echo "================================================================================"
 docker-compose start app
+docker logs -f stockkeeper_app_1

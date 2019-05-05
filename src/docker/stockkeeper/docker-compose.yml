@@ -14,6 +14,7 @@ services:
     image: us.michaelrhodes/stockkeeper
     environment: 
       STOCKKEEPER_DB: db
+      DB_PASS: ${DB_PASS}
     ports:
       - 8200:8200
     depends_on:
