@@ -42,4 +42,19 @@ class AccountDAO (private val jdbcTemplate: NamedParameterJdbcTemplate,
         return jdbcTemplate.queryForFirst(query, parameters, accountRowMapper)
     }
 
+    fun insert(account: Account): Account {
+        val query = """
+            INSERT INTO account(uuid, username)
+            VALUES (:uuid, :username)
+        """.trimIndent()
+        
+        val parameters = MapSqlParameterSource()
+                .addValue("uuid", account.uuid)
+                .addValue("username", account.username)
+        
+        jdbcTemplate.update(query, parameters)
+        
+        return account
+    }
+
 }
