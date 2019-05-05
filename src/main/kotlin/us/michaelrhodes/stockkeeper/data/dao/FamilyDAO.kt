@@ -15,15 +15,15 @@ class FamilyDAO(private val jdbcTemplate: NamedParameterJdbcTemplate,
             SELECT 
               f.uuid, 
               f.name, 
-              f.created_at AT TIME ZONE 'UTC', 
-              f.updated_at AT TIME ZONE 'UTC', 
-              f.deleted_at AT TIME ZONE 'UTC'
+              f.created_at AT TIME ZONE 'UTC' as created_at, 
+              f.updated_at AT TIME ZONE 'UTC' as updated_at, 
+              f.deleted_at AT TIME ZONE 'UTC' as deleted_At
             FROM family f
             JOIN family_member fm
               ON f.uuid = fm.family_uuid
             WHERE fm.account_uuid = :accountUuid
             ORDER BY f.updated_at
-        """.trimIndent()
+        """
 
         val parameter = MapSqlParameterSource()
                 .addValue("accountUuid", accountUuid)
@@ -33,9 +33,19 @@ class FamilyDAO(private val jdbcTemplate: NamedParameterJdbcTemplate,
 
     fun insert(family: Family): Family {
         val query = """
-            INSERT INTO family(uuid, name, created_at, updated_at, deleted_at)
-            VALUES (:uuid, :name, :createdAt, :updatedAt, :deletedAt)
-        """.trimIndent()
+            INSERT INTO family(
+              uuid, 
+              name, 
+              created_at, 
+              updated_at, 
+              deleted_at)
+            VALUES (
+              :uuid, 
+              :name, 
+              :createdAt, 
+              :updatedAt, 
+              :deletedAt)
+        """
 
         val parameters = MapSqlParameterSource()
                 .addValue("uuid", family.uuid)
@@ -54,7 +64,7 @@ class FamilyDAO(private val jdbcTemplate: NamedParameterJdbcTemplate,
             UPDATE family 
             SET deleted_at = NOW() 
             WHERE uuid = :familyUuid
-        """.trimIndent()
+        """
 
         val parameter = MapSqlParameterSource()
                 .addValue("familyUuid", familyUuid)
@@ -67,7 +77,7 @@ class FamilyDAO(private val jdbcTemplate: NamedParameterJdbcTemplate,
             UPDATE family 
             SET name = :name, updated_at = :updatedAt 
             WHERE uuid = :familyUuid
-        """.trimIndent()
+        """
 
         val parameters = MapSqlParameterSource()
                 .addValue("name", family.name)
@@ -84,12 +94,12 @@ class FamilyDAO(private val jdbcTemplate: NamedParameterJdbcTemplate,
             SELECT 
               f.uuid, 
               f.name, 
-              f.created_at AT TIME ZONE 'UTC', 
-              f.updated_at AT TIME ZONE 'UTC', 
-              f.deleted_at AT TIME ZONE 'UTC'
+              f.created_at AT TIME ZONE 'UTC' as created_at, 
+              f.updated_at AT TIME ZONE 'UTC' as updated_at, 
+              f.deleted_at AT TIME ZONE 'UTC' as deleted_at
             FROM family f
             WHERE f.uuid = :familyUuid
-        """.trimIndent()
+        """
 
         val parameter = MapSqlParameterSource()
                 .addValue("familyUuid", familyUuid)
@@ -102,7 +112,7 @@ class FamilyDAO(private val jdbcTemplate: NamedParameterJdbcTemplate,
             UPDATE family 
             SET deleted_at = NULL
             WHERE uuid = :familyUuid
-        """.trimIndent()
+        """
 
         val parameter = MapSqlParameterSource()
                 .addValue("familyUuid", familyUuid)

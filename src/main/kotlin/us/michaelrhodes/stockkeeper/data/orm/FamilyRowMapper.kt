@@ -18,15 +18,15 @@ class FamilyRowMapper : RowMapper<Family> {
         val deletedAt = rs.getTimestamp("deleted_at")
         
         val deletedAtWithTimeZone = if (deletedAt != null) {
-            OffsetDateTime.ofInstant(deletedAt.toInstant(), ZoneOffset.UTC)
+            OffsetDateTime.of(deletedAt.toLocalDateTime(), ZoneOffset.UTC)
         } else {
             null
         }
         
         return Family(uuid = UUID.fromString(uuid), 
                 name = name, 
-                createdAt = OffsetDateTime.ofInstant(createdAt.toInstant(), ZoneOffset.UTC),
-                updatedAt = OffsetDateTime.ofInstant(updatedAt.toInstant(), ZoneOffset.UTC), 
+                createdAt = OffsetDateTime.of(createdAt.toLocalDateTime(), ZoneOffset.UTC),
+                updatedAt = OffsetDateTime.of(updatedAt.toLocalDateTime(), ZoneOffset.UTC), 
                 deletedAt = deletedAtWithTimeZone)
     }
 

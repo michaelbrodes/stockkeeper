@@ -19,7 +19,7 @@ class AccountDAO (private val jdbcTemplate: NamedParameterJdbcTemplate,
             JOIN family_member fm 
               ON fm.account_uuid = a.uuid
             WHERE fm.uuid = :familyMemberUuid
-        """.trimIndent()
+        """
         
         val parameters = MapSqlParameterSource()
                 .addValue("familyMemberUuid", uuid)
@@ -34,7 +34,7 @@ class AccountDAO (private val jdbcTemplate: NamedParameterJdbcTemplate,
               a.username
             FROM account a
             WHERE a.uuid = :accountUuid
-        """.trimIndent()
+        """
 
         val parameters = MapSqlParameterSource()
                 .addValue("accountUuid", accountUuid)
@@ -46,7 +46,7 @@ class AccountDAO (private val jdbcTemplate: NamedParameterJdbcTemplate,
         val query = """
             INSERT INTO account(uuid, username)
             VALUES (:uuid, :username)
-        """.trimIndent()
+        """
         
         val parameters = MapSqlParameterSource()
                 .addValue("uuid", account.uuid)
@@ -57,4 +57,18 @@ class AccountDAO (private val jdbcTemplate: NamedParameterJdbcTemplate,
         return account
     }
 
+    fun getByUsername(username: String): Account? {
+        val query = """
+            SELECT 
+              a.uuid,
+              a.username
+            FROM account a
+            WHERE a.username = :username
+        """
+        
+        val parameter = MapSqlParameterSource() 
+                .addValue("username", username)
+        
+        return jdbcTemplate.queryForFirst(query, parameter, accountRowMapper)
+    }
 }

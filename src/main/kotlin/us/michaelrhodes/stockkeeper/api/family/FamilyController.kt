@@ -39,7 +39,7 @@ class FamilyController(private val accountDao: AccountDAO,
      * @param accountUuid the UUID of a user's account.
      * @return all the families that the user is a `family_member` of.
      */
-    @GetMapping("/")
+    @GetMapping
     fun getByAccountUuid(@RequestParam("accountUuid") accountUuid: UUID): ResponseEntity<List<FamilyPanel>> {
         val families = familyDao.getByAccountUuid(accountUuid)
                 .map { family ->
@@ -76,7 +76,7 @@ class FamilyController(private val accountDao: AccountDAO,
      * @param accountUuid the UUID of a user's account.
      * @return the newly created family.
      */
-    @PostMapping("/")
+    @PostMapping
     fun createFamily(@RequestParam("accountUuid") accountUuid: UUID,
                      @RequestBody familyRequest: FamilyCreationRequest): ResponseEntity<FamilyPanel> {
         val newFamily = Family(uuid = UUID.randomUUID(),
