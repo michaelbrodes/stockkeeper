@@ -1,7 +1,7 @@
 version: '3.0'
 services:
   db:
-    image: postgres
+    image: postgres:alpine
     restart: always
     environment:
       POSTGRES_PASSWORD: ${DB_PASS}
@@ -10,7 +10,7 @@ services:
     volumes:
       - ./postgres/initdb:/docker-entrypoint-initdb.d
       - ./postgres/data:/var/lib/postgresql/data
-  app:
+  server:
     image: us.michaelrhodes/stockkeeper
     environment: 
       STOCKKEEPER_DB: db
@@ -21,3 +21,13 @@ services:
       - db
     links:
       - db
+  client:
+    image: us.michaelrhodes/stockkeeper_client:0.1
+    environment:
+      STOCKKEEPER_SERVER: server
+    ports:
+      - 80:80
+    depends_on:
+      - server
+    links:
+      - server

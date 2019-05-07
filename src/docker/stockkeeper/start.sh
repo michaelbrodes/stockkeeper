@@ -22,6 +22,19 @@ function wait_on_db()
     done
 }
 
+# This function will repeatedly query for health against a springboot 
+# application. It will only return when the app returns a 200.
+function wait_on_app() 
+{
+    host=$1
+    port=$2
+    
+    until curl --fail -X GET "http://$host:$port/health/"; do 
+        >&2 echo "App $host:$port is unavailable - sleeping"
+        sleep 3
+    done
+}
+
 docker-compose up --build --no-start
 
 echo "Starting database and waiting until it is up!"
@@ -30,7 +43,16 @@ docker-compose start db
 wait_on_db localhost 5432
 echo "Database is up!"
 
-echo "Starting app!"
+echo "Starting server and waiting until it is up!"
 echo "================================================================================"
-docker-compose start app
-docker logs -f stockkeeper_app_1
+docker-compose start server
+wait_on_app localhost 8200
+echo ""
+echo "Server is up!"
+
+echo "Starting client!"
+echo "================================================================================"
+docker-compose start client
+
+# follow the server logs since we are in the server project.
+docker logs -f stockkeeper_server_1
