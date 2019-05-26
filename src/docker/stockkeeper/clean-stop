@@ -1,0 +1,8 @@
+#!/bin/bash
+
+source stop
+
+docker rm stockkeeper_db_1 stockkeeper_client_1 stockkeeper_server_1 
+docker rmi postgres:alpine us.michaelrhodes/stockkeeper us.michaelrhodes/stockkeeper_client
+
+rm -r postgres/data/*

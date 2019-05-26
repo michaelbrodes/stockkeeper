@@ -15,7 +15,7 @@ class AccountController(private val accountDao: AccountDAO) {
         val previousAccount = accountDao.getByUsername(accountCreationRequest.username)
         
         return if (previousAccount == null) {
-            val uuid = UUID.randomUUID()
+            val uuid = UUID.randomUUID()!!
             val account = Account(uuid, accountCreationRequest.username)
             
             ResponseEntity.created(URI.create("/v1/account/$uuid"))

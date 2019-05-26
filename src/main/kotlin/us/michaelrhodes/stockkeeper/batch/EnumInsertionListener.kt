@@ -17,6 +17,7 @@ class EnumInsertionListener(val jdbcTemplate: NamedParameterJdbcTemplate)
     companion object {
         val LOG : Logger = LoggerFactory.getLogger(EnumInsertionListener::class.java)
     }
+    
     @Transactional
     override fun onApplicationEvent(event: ContextRefreshedEvent) {
         insertFamilyPermissions()
@@ -38,6 +39,6 @@ class EnumInsertionListener(val jdbcTemplate: NamedParameterJdbcTemplate)
                     |ON CONFLICT DO NOTHING""".trimMargin(),
                 parameters)
                 .sum()
-        LOG.debug("Inserted FamilyPermission constants: {}", updatedRecords)
+        LOG.info("Inserted FamilyPermission constants: {}", updatedRecords)
     }
 }

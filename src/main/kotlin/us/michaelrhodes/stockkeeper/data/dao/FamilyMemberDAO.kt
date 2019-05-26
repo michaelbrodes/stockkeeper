@@ -14,7 +14,7 @@ class FamilyMemberDAO(private val jdbcTemplate: NamedParameterJdbcTemplate,
         val query = """
             INSERT INTO family_member (uuid, account_uuid, family_uuid, family_permission_uid)
             VALUES (:uuid, :accountUuid, :familyUuid, :familyPermissionUid)
-        """.trimIndent()
+        """
         
         val parameters = MapSqlParameterSource()
                 .addValue("uuid", familyMember.uuid)
@@ -36,13 +36,13 @@ class FamilyMemberDAO(private val jdbcTemplate: NamedParameterJdbcTemplate,
               fm.family_permission_uid
             FROM family_member fm
             WHERE fm.family_uuid = :familyUuid AND fm.account_uuid = :accountUuid
-        """.trimIndent()
+        """
         
         val parameters = MapSqlParameterSource() 
                 .addValue("familyUuid", familyUuid)
                 .addValue("accountUuid", accountUuid)
         
-        return jdbcTemplate.queryForFirst(query, parameters, familyMemberRowMapper)
+        return jdbcTemplate.queryForObject(query, parameters, familyMemberRowMapper)
     }
 
     fun getByFamilyUuid(uuid: UUID): List<FamilyMember> {
@@ -54,11 +54,28 @@ class FamilyMemberDAO(private val jdbcTemplate: NamedParameterJdbcTemplate,
               fm.family_permission_uid
             FROM family_member fm
             WHERE fm.family_uuid = :familyUuid
-        """.trimIndent()
+        """
         
         val parameters = MapSqlParameterSource()
                 .addValue("familyUuid", uuid)
         
         return jdbcTemplate.query(query, parameters, familyMemberRowMapper)
+    }
+
+    fun getByUuid(uuid: UUID): FamilyMember? {
+        val query = """
+            SELECT 
+              fm.uuid, 
+              fm.account_uuid, 
+              fm.family_uuid, 
+              fm.family_permission_uid
+            FROM family_member fm
+            WHERE fm.uuid = :uuid
+        """
+
+        val parameters = MapSqlParameterSource()
+                .addValue("uuid", uuid)
+
+        return jdbcTemplate.queryForObject(query, parameters, familyMemberRowMapper)
     }
 }

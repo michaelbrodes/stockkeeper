@@ -1,0 +1,4 @@
+#!/bin/bash
+
+curl --fail -X POST http://localhost:8200/actuator/shutdown
+docker stop stockkeeper_db_1 stockkeeper_client_1 stockkeeper_server_1

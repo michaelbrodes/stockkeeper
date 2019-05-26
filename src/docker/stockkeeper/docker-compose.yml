@@ -22,7 +22,7 @@ services:
     links:
       - db
   client:
-    image: us.michaelrhodes/stockkeeper_client:0.1
+    image: us.michaelrhodes/stockkeeper_client
     environment:
       STOCKKEEPER_SERVER: server
     ports:

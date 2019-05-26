@@ -34,9 +34,22 @@ class PantryDAO(private val jdbcTemplate: NamedParameterJdbcTemplate,
             WHERE family_uuid = :familyUuid
         """
         
-        val paramter = MapSqlParameterSource()
-                .addValue("familyUuid", uuid)
+        val parameter = MapSqlParameterSource("familyUuid", uuid)
         
-        return jdbcTemplate.queryForFirst(query, paramter, pantryRowMapper)
+        return jdbcTemplate.queryForFirst(query, parameter, pantryRowMapper)
+    }
+
+    fun getByUuid(pantryUuid: UUID): Pantry? {
+        val query = """
+            SELECT
+              uuid, 
+              family_uuid
+            FROM pantry
+            WHERE uuid = :pantryUuid
+        """
+        
+        val parameter = MapSqlParameterSource("pantryUuid", pantryUuid)
+        
+        return jdbcTemplate.queryForFirst(query, parameter, pantryRowMapper)
     }
 }

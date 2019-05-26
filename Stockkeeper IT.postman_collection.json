@@ -1,0 +1,506 @@
+{
+	"info": {
+		"_postman_id": "99e6f9de-48d2-449d-8796-b282f022d285",
+		"name": "Stockkeeper IT",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Clear All Data",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{base-url}}/test/all-data",
+					"host": [
+						"{{base-url}}"
+					],
+					"path": [
+						"test",
+						"all-data"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create a non-existing account",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "bc75cd90-db21-4294-9d7f-93a1d1a9a078",
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"    pm.environment.set(\"accountUuid\", pm.response.json().uuid);",
+							"});",
+							"",
+							"pm.test(\"Response contains username\", function () {",
+							"    var account = pm.response.json();",
+							"    var expectedUsername = pm.globals.get(\"postedUser\");",
+							"    ",
+							"    pm.expect(account.username).to.eql(expectedUsername);",
+							"});",
+							"",
+							"pm.test(\"Account was actually created\", function () {",
+							"    var accountUuid = pm.response.json().uuid;",
+							"    var username = pm.response.json().username;",
+							"    var baseUrl = pm.environment.get(\"base-url\");",
+							"    ",
+							"    pm.sendRequest(baseUrl + \"/v1/account/\" + accountUuid, function (err, response) {",
+							"        var getAccount = response.json()",
+							"        pm.expect(getAccount.uuid).to.eql(accountUuid)",
+							"        pm.expect(getAccount.username).to.eql(username)",
+							"    });",
+							"})",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "7db48360-8d5a-4942-a20c-a7a4e6d3cc3f",
+						"exec": [
+							"pm.globals.set(\"postedUser\", \"test_user\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\" : \"{{postedUser}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base-url}}/v1/account/",
+					"host": [
+						"{{base-url}}"
+					],
+					"path": [
+						"v1",
+						"account",
+						""
+					]
+				},
+				"description": "Verifies that if a user creates an account with a user name that doesn't currently exist, we create it."
+			},
+			"response": []
+		},
+		{
+			"name": "Create an existing account",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "cfe31209-156a-4114-8597-6bf36d7f768c",
+						"exec": [
+							"pm.globals.set(\"postedUser\", \"test_user\");"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "dcba9f2f-d46a-40db-ba21-1d5e62a89784",
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"username\": \"{{postedUser}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base-url}}/v1/account",
+					"host": [
+						"{{base-url}}"
+					],
+					"path": [
+						"v1",
+						"account"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create a non-existing family",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "3eea4ec5-3930-4114-801c-b980b7f529bd",
+						"exec": [
+							"pm.environment.set(\"familyName\", \"Rhodes Family\");"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "94efc417-c91f-4f38-80e4-6701c8009955",
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"    var jsonData = pm.response.json();",
+							"    pm.globals.set(\"familyUuid\", jsonData.family.uuid);",
+							"});",
+							"",
+							"pm.test(\"Correct family created\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var familyName = pm.environment.get(\"familyName\");",
+							"    pm.expect(jsonData.family.name).to.eql(familyName);",
+							"});",
+							"",
+							"pm.test(\"Correct family members created\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var accountUuid = pm.environment.get(\"accountUuid\");",
+							"",
+							"    pm.expect(jsonData.members.length).to.eql(1);",
+							"    var familyMember = jsonData.members[0];",
+							"    pm.expect(familyMember.accountUuid).to.eql(accountUuid);",
+							"    pm.expect(familyMember.permission).to.eql(\"OWNER\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"{{familyName}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base-url}}/v1/family?accountUuid={{accountUuid}}",
+					"host": [
+						"{{base-url}}"
+					],
+					"path": [
+						"v1",
+						"family"
+					],
+					"query": [
+						{
+							"key": "accountUuid",
+							"value": "{{accountUuid}}",
+							"description": "This is set by \"Create a non-existing account\""
+						}
+					]
+				},
+				"description": "Creates a family that doesn't exist yet. The result should be that the family is created and the current user is the owner."
+			},
+			"response": []
+		},
+		{
+			"name": "Get Families for Account",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4eee1724-b3e7-4b87-bb1f-deab0dcb4df0",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Only one family\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var actualLength = jsonData.length",
+							"    pm.expect(actualLength).to.eql(1);",
+							"});",
+							"",
+							"pm.test(\"Family is correct\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var actualFamilyName = jsonData[0].family.name;",
+							"    var actualDeleted = jsonData[0].family.deletedAt;",
+							"    ",
+							"    var expectedFamilyName = pm.environment.get(\"familyName\");",
+							"    ",
+							"    pm.expect(actualDeleted).to.eql(null);",
+							"    pm.expect(actualFamilyName).to.eql(expectedFamilyName);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{base-url}}/v1/family?accountUuid={{accountUuid}}",
+					"host": [
+						"{{base-url}}"
+					],
+					"path": [
+						"v1",
+						"family"
+					],
+					"query": [
+						{
+							"key": "accountUuid",
+							"value": "{{accountUuid}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create existing family",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "08c64f6a-762e-4759-a9bb-5f31b9e5b611",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "59346832-510e-46e4-abd8-0bed2e9331bb",
+						"exec": [
+							"var jsonData = pm.response.json();",
+							"pm.environment.set(\"duplicateFamilyUuid\", jsonData.family.uuid);",
+							"",
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Same family name\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var expectedFamilyName = pm.environment.get(\"familyName\"); ",
+							"    var actualFamilyName = jsonData.family.name;",
+							"    pm.expect(actualFamilyName).to.eql(expectedFamilyName);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"name\": \"{{familyName}}\"\n}"
+				},
+				"url": {
+					"raw": "{{base-url}}/v1/family?accountUuid={{accountUuid}}",
+					"host": [
+						"{{base-url}}"
+					],
+					"path": [
+						"v1",
+						"family"
+					],
+					"query": [
+						{
+							"key": "accountUuid",
+							"value": "{{accountUuid}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete a family",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "27471459-b349-4b51-8e71-5b0d0d9f78f7",
+						"exec": [
+							"pm.test(\"Status code is 202\", function () {",
+							"    pm.response.to.have.status(202);",
+							"});",
+							"",
+							"pm.test(\"Family is actually deleted\", function () {",
+							"    var baseUrl = pm.environment.get(\"base-url\");",
+							"    var accountUuid = pm.environment.get(\"accountUuid\");",
+							"",
+							"    pm.sendRequest(baseUrl + \"/v1/family?accountUuid=\" + accountUuid, function (err, response) {",
+							"        var jsonData = response.json();",
+							"        var duplicateFamilyUuid = pm.environment.get(\"duplicateFamilyUuid\");",
+							"        var deletedFamily = jsonData.filter((familyPanel) => familyPanel.family.uuid === duplicateFamilyUuid)[0]",
+							"    ",
+							"        pm.expect(deletedFamily.deletedAt).to.not.be.null;",
+							"    });    ",
+							"})",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{base-url}}/v1/family/:familyUuid?accountUuid={{accountUuid}}",
+					"host": [
+						"{{base-url}}"
+					],
+					"path": [
+						"v1",
+						"family",
+						":familyUuid"
+					],
+					"query": [
+						{
+							"key": "accountUuid",
+							"value": "{{accountUuid}}"
+						}
+					],
+					"variable": [
+						{
+							"key": "familyUuid",
+							"value": "{{duplicateFamilyUuid}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Restore Family",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "ae61dac8-d11d-4931-80fb-2b43a3d72d0d",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "38dd8d3a-7bb2-4710-be62-8cfcedbb48dc",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Family is restored\", function () {",
+							"    var baseUrl = pm.environment.get(\"base-url\");",
+							"    var accountUuid = pm.environment.get(\"accountUuid\");",
+							"",
+							"    pm.sendRequest(baseUrl + \"/v1/family?accountUuid=\" + accountUuid, function (err, response) {",
+							"        var jsonData = response.json();",
+							"        var duplicateFamilyUuid = pm.environment.get(\"duplicateFamilyUuid\");",
+							"        var deletedFamily = jsonData.filter((familyPanel) => familyPanel.family.uuid === duplicateFamilyUuid)[0]",
+							"    ",
+							"        pm.expect(deletedFamily.family.deletedAt).to.be.null;",
+							"    });    ",
+							"})",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{base-url}}/v1/family/deleted/:familyUuid?accountUuid={{accountUuid}}",
+					"host": [
+						"{{base-url}}"
+					],
+					"path": [
+						"v1",
+						"family",
+						"deleted",
+						":familyUuid"
+					],
+					"query": [
+						{
+							"key": "accountUuid",
+							"value": "{{accountUuid}}"
+						}
+					],
+					"variable": [
+						{
+							"key": "familyUuid",
+							"value": "{{duplicateFamilyUuid}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
